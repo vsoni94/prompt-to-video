@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: text2video-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: text2video-api
+  template:
+    metadata:
+      labels:
+        app: text2video-api
+    spec:
+      containers:
+      - name: api
+        image: varunsoni94/text2video-api
+        ports:
+        - containerPort: 8000
+        volumeMounts:
+        - name: output-volume
+          mountPath: /mnt/data/output
+      volumes:
+      - name: output-volume
+        hostPath:
+          path: /mnt/data/output
+          type: DirectoryOrCreate

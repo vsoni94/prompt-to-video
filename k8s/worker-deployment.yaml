@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: text2video-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: text2video-worker
+  template:
+    metadata:
+      labels:
+        app: text2video-worker
+    spec:
+      containers:
+      - name: worker
+        image: varunsoni94/text2video-api
+        command: ["/bin/bash", "-c", "./celery_worker.sh"]
+        volumeMounts:
+        - name: output-volume
+          mountPath: /mnt/data/output
+      volumes:
+      - name: output-volume
+        hostPath:
+          path: /mnt/data/output
+          type: DirectoryOrCreate
