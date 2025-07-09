@@ -3,10 +3,13 @@ import redis
 r = redis.Redis(host="redis", port=6379, db=0, decode_responses=True)
 
 def add_job(job_id, prompt):
-    r.hset(f"job:{job_id}", mapping={"prompt": prompt, "status": "PENDING"})
+    r.hset(f"job:{job_id}", mapping={"prompt": prompt, "status": "PENDING", "result": ""})
 
-def update_status(job_id, status):
-    r.hset(f"job:{job_id}", "status", status)
+def update_status(job_id, status, result=None):
+    if result is not None:
+        r.hset(f"job:{job_id}", mapping={"status": status, "result": result})
+    else:
+        r.hset(f"job:{job_id}", "status", status)
 
 def get_job(job_id):
     job = r.hgetall(f"job:{job_id}")

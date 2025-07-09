@@ -12,19 +12,31 @@ spec:
       labels:
         app: text2video-worker
     spec:
-      runtimeClassName: nvidia
+      runtimeClassName: nvidia                    # Use NVIDIA GPU runtime
       containers:
       - name: worker
-        image: varunsoni94/text2video-api
-        command: ["/bin/bash", "-c", "./celery_worker.sh"]
+        image: varunsoni94/text2video-api         # Same image, good
+        command: ["/bin/bash", "-c", "./celery_worker.sh"]  # Entrypoint script
         volumeMounts:
         - name: output-volume
-          mountPath: /mnt/data/output
+          mountPath: /mnt/data/output               # For output persistence
+        - name: mochi-cache-volume                   # Mount model cache for worker too
+          mountPath: /mnt/mochi-models
         resources:
           limits:
             nvidia.com/gpu: 1
+            memory: 96Gi                             # Set memory limits (adjust as needed)
+            cpu: "16"                                # Set CPU limits (adjust as needed)
+          requests:
+            nvidia.com/gpu: 1
+            memory: 64Gi
+            cpu: "8"
       volumes:
       - name: output-volume
         hostPath:
           path: /mnt/data/output
+          type: DirectoryOrCreate
+      - name: mochi-cache-volume
+        hostPath:
+          path: /var/lib/mochi-models
           type: DirectoryOrCreate
