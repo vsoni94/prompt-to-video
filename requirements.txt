@@ -1,8 +1,12 @@
 fastapi
-uvicorn
+uvicorn[standard]
 celery
 redis
-transformers
 torch
+transformers
+diffusers[torch]
 huggingface_hub
 accelerate
+safetensors
+sentencepiece
+opencv-python

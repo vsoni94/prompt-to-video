@@ -21,6 +21,3 @@ def list_jobs():
         {"job_id": key.split(":")[1], **r.hgetall(key)}
         for key in keys
     ]
-
-def get_output_path(job_id):
-    return f"/mnt/data/output/{job_id}.mp4"

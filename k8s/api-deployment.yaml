@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: text2video-api
+  labels:
+    app: text2video-api
 spec:
   replicas: 1
   selector:
@@ -12,16 +14,30 @@ spec:
       labels:
         app: text2video-api
     spec:
+      runtimeClassName: nvidia        # <-- Add this line to enable NVIDIA GPU runtime
       containers:
       - name: api
-        image: varunsoni94/text2video-api
+        image: varunsoni94/text2video-api # Use your image tag here
         ports:
         - containerPort: 8000
         volumeMounts:
-        - name: output-volume
-          mountPath: /mnt/data/output
+        - mountPath: /mnt/data/output
+          name: output-volume
       volumes:
       - name: output-volume
         hostPath:
           path: /mnt/data/output
           type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: text2video-api-service
+spec:
+  selector:
+    app: text2video-api
+  type: NodePort
+  ports:
+  - port: 8000
+    targetPort: 8000
+    nodePort: 30080   # Change as per your cluster config and availability

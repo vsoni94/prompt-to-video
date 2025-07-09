@@ -12,6 +12,7 @@ spec:
       labels:
         app: text2video-worker
     spec:
+      runtimeClassName: nvidia
       containers:
       - name: worker
         image: varunsoni94/text2video-api
@@ -19,6 +20,9 @@ spec:
         volumeMounts:
         - name: output-volume
           mountPath: /mnt/data/output
+        resources:
+          limits:
+            nvidia.com/gpu: 1
       volumes:
       - name: output-volume
         hostPath:
