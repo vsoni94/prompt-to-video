@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+celery
+redis
+torch
+transformers
+diffusers[torch]
+huggingface_hub
+accelerate
+safetensors
+sentencepiece
+opencv-python
