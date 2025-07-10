@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: text2video-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: text2video-frontend
+  template:
+    metadata:
+      labels:
+        app: text2video-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: varunsoni94/text2video-frontend
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: text2video-frontend-service
+spec:
+  selector:
+    app: text2video-frontend
+  type: NodePort
+  ports:
+    - port: 80           # Service port
+      targetPort: 80     # Container port
+      nodePort: 30081    # External port on nodes (adjust if needed)

@@ -18,7 +18,14 @@ RUN pip install --upgrade pip \
  && pip install --no-cache-dir -r requirements.txt
 
 # Copy source code
-COPY . .
+# Copy only the app folder contents into /app
+COPY app/ ./app/
+
+# Copy celery_worker.sh to /app (or / depending on your preference)
+COPY celery_worker.sh /app/
+
+# Make sure the script is executable
+RUN chmod +x /app/celery_worker.sh
 
 # Expose FastAPI default port
 EXPOSE 8000

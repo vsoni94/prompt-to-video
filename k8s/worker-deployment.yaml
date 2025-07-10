@@ -16,7 +16,7 @@ spec:
       containers:
       - name: worker
         image: varunsoni94/text2video-api         # Same image, good
-        command: ["/bin/bash", "-c", "./celery_worker.sh"]  # Entrypoint script
+        command: ["/bin/bash", "-c", "/app/celery_worker.sh"]  # Entrypoint script
         volumeMounts:
         - name: output-volume
           mountPath: /mnt/data/output               # For output persistence
