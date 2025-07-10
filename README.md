@@ -33,6 +33,12 @@ This repository contains a FastAPI-based backend and Celery worker setup for gen
 - `app/video_generator.py` — Video generation logic using MochiPipeline
 - `app/jobs.py` — Redis utility functions for job status management
 - `k8s/` — Kubernetes manifests for API, worker, Redis, and services
+- `frontend/Dockerfile` — Builds and serves the React app with Nginx
+- `frontend/nginx.conf` — Nginx config for routing frontend + API/media proxy
+- `frontend/public/index.html` — HTML entry point
+-  `frontend/src/App.jsx` — Main React component for UI and job logic
+-  `frontend/src/index.js` — React entry point
+-  `frontend/package.json` — Dependencies and scripts
 
 ---
 
@@ -80,7 +86,9 @@ kubectl --kubeconfig kube.conf logs -f <pod-name>
 # Exec Into Pod Shell
 kubectl --kubeconfig kube.conf exec -it text2video-worker-xxxxxx -- /bin/bash
 
-kubectl --kubeconfig kube.conf port-forward svc/text2video-api-service 8000:8000
+# If node is not exposed to public domain, use following to open in browser
+kubectl --kubeconfig kube.conf port-forward svc/text2video-api-service 8000:8000 #Backend
+kubectl --kubeconfig kube.conf port-forward svc/text2video-frontend-service 8080:80 #Frontend
 
 # Delete Pods, Deployments, Services
 kubectl --kubeconfig kube.conf delete pod <pod-name>

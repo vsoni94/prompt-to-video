@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: text2video-frontend
+  labels:
+    app: text2video-frontend
 spec:
   replicas: 1
   selector:
@@ -12,6 +14,7 @@ spec:
       labels:
         app: text2video-frontend
     spec:
+      terminationGracePeriodSeconds: 10
       containers:
         - name: frontend
           image: varunsoni94/text2video-frontend
@@ -36,20 +39,21 @@ spec:
               cpu: 100m
               memory: 128Mi
             limits:
-              cpu: 500m
+              cpu: 1
               memory: 512Mi
 
 ---
-
 apiVersion: v1
 kind: Service
 metadata:
   name: text2video-frontend-service
+  labels:
+    app: text2video-frontend
 spec:
   selector:
     app: text2video-frontend
   type: NodePort
   ports:
-    - port: 80           # Service port
-      targetPort: 80     # Container port
-      nodePort: 30081    # External port on nodes (adjust if needed)
+    - port: 80
+      targetPort: 80
+      nodePort: 30081
