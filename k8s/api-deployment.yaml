@@ -14,25 +14,22 @@ spec:
       labels:
         app: text2video-api
     spec:
-      runtimeClassName: nvidia        # NVIDIA GPU runtime
       containers:
       - name: api
-        image: varunsoni94/text2video-api  # Your image
+        image: varunsoni94/text2video-api
         ports:
         - containerPort: 8000
         resources:
           limits:
-            nvidia.com/gpu: 2            # Request 2 GPUs (adjust as needed)
-            memory: 128Gi
-            cpu: "32"
+            memory: 4Gi
+            cpu: "2"
           requests:
-            nvidia.com/gpu: 2
-            memory: 192Gi
-            cpu: "64"
+            memory: 2Gi
+            cpu: "1"
         volumeMounts:
         - mountPath: /mnt/data/output
           name: output-volume
-        - mountPath: /mnt/mochi-models          # Mount point for model cache
+        - mountPath: /mnt/mochi-models
           name: mochi-cache-volume
       volumes:
       - name: output-volume
@@ -41,7 +38,7 @@ spec:
           type: DirectoryOrCreate
       - name: mochi-cache-volume
         hostPath:
-          path: /var/lib/mochi-models           # Host path to persist model weights
+          path: /var/lib/mochi-models
           type: DirectoryOrCreate
 
 ---
@@ -56,4 +53,4 @@ spec:
   ports:
   - port: 8000
     targetPort: 8000
-    nodePort: 30080   # Adjust as per your cluster's nodePort availability
+    nodePort: 30080

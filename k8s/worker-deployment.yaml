@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: text2video-worker
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: text2video-worker
@@ -12,23 +12,32 @@ spec:
       labels:
         app: text2video-worker
     spec:
-      runtimeClassName: nvidia                    # Use NVIDIA GPU runtime
+      runtimeClassName: nvidia                # Use NVIDIA GPU runtime
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - g198                          # Your worker node name
       containers:
       - name: worker
-        image: varunsoni94/text2video-api         # Same image, good
-        command: ["/bin/bash", "-c", "/app/celery_worker.sh"]  # Entrypoint script
+        image: varunsoni94/text2video-api
+        command: ["/bin/bash", "-c", "/app/celery_worker.sh"]
         volumeMounts:
         - name: output-volume
-          mountPath: /mnt/data/output               # For output persistence
-        - name: mochi-cache-volume                   # Mount model cache for worker too
+          mountPath: /mnt/data/output
+        - name: mochi-cache-volume
           mountPath: /mnt/mochi-models
         resources:
           limits:
-            nvidia.com/gpu: 1
-            memory: 96Gi                             # Set memory limits (adjust as needed)
-            cpu: "16"                                # Set CPU limits (adjust as needed)
+            nvidia.com/gpu: 2                 # Request 2 GPUs per pod
+            memory: 96Gi
+            cpu: "16"
           requests:
-            nvidia.com/gpu: 1
+            nvidia.com/gpu: 2
             memory: 64Gi
             cpu: "8"
       volumes:
@@ -40,3 +49,23 @@ spec:
         hostPath:
           path: /var/lib/mochi-models
           type: DirectoryOrCreate
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: text2video-worker-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: text2video-worker
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70

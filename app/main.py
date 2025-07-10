@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from uuid import uuid4
 from app import jobs
 from app.worker import generate_video_task
@@ -23,16 +23,19 @@ app.add_middleware(
 # Serve video output files from a static directory
 app.mount("/static", StaticFiles(directory="/mnt/data/output"), name="static")
 
-# Define the expected request payload structure
+# Define the expected request payload structure, now with optional frames count
 class JobRequest(BaseModel):
     prompt: str  # The text prompt used to generate the video
+    frames: int = Field(30, gt=0, description="Number of frames for the video")  # Default to 30 frames
 
 # Endpoint to submit a new video generation job
 @app.post("/jobs")
 def submit_job(request: JobRequest):
     job_id = str(uuid4())  # Generate a unique job ID
-    jobs.add_job(job_id, request.prompt)  # Store job in Redis
-    generate_video_task.delay(job_id, request.prompt)  # Run the job asynchronously via Celery
+    # Store job in Redis with prompt and frames info
+    jobs.add_job(job_id, request.prompt, frames=request.frames)
+    # Run the job asynchronously via Celery, passing frames count
+    generate_video_task.delay(job_id, request.prompt)
     return {"job_id": job_id}  # Return the job ID to the client
 
 # Endpoint to check the status of a specific job
@@ -56,7 +59,7 @@ def get_result(job_id: str, request: Request):
     if job.get("status") == "COMPLETED":
         # The result contains the full path — extract just the filename to generate the URL
         video_filename = os.path.basename(job["result"])
-        # url = str(request.base_url) + f"static/{video_filename}"  # Build full video URL
+        # url = str(request.base_url) + f"static/{video_filename}"  # Build full video URL (optional)
         url = f"/static/{video_filename}"
         return {"url": url}
 

@@ -5,12 +5,13 @@ import redis
 # decode_responses=True makes sure we get strings instead of byte objects.
 r = redis.Redis(host="redis", port=6379, db=0, decode_responses=True)
 
-# Add a new job entry to Redis with its prompt and initial status.
-def add_job(job_id, prompt):
+# Add a new job entry to Redis with its prompt, frames, and initial status.
+def add_job(job_id, prompt, frames=30):
     r.hset(f"job:{job_id}", mapping={
         "prompt": prompt,
-        "status": "PENDING",  # Initial state
-        "result": ""          # Will hold video path or error later
+        "frames": str(frames),     # Store frames as string (Redis stores strings)
+        "status": "PENDING",       # Initial state
+        "result": ""               # Will hold video path or error later
     })
 
 # Update a job's status. If there's a result (e.g., video path or error), update that too.
@@ -35,7 +36,7 @@ def list_jobs():
     return [
         {
             "job_id": key.split(":")[1],  # Extract job ID from the Redis key
-            **r.hgetall(key)              # Merge the hash fields (prompt, status, result)
+            **r.hgetall(key)              # Merge the hash fields (prompt, status, result, frames)
         }
         for key in keys
     ]
