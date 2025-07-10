@@ -39,8 +39,12 @@ This repository contains a FastAPI-based backend and Celery worker setup for gen
 ## Building and Pushing Docker Images
 
 ```bash
+# backenc
 docker build -t varunsoni94/text2video-api .
 docker push varunsoni94/text2video-api
+#frontend
+docker build -t varunsoni94/text2video-frontend ./frontend
+docker push varunsoni94/text2video-frontend
 ```
 
 ---
@@ -52,12 +56,14 @@ kubectl --kubeconfig kube.conf apply -f k8s/redis-deployment.yaml
 kubectl --kubeconfig kube.conf apply -f k8s/api-deployment.yaml
 kubectl --kubeconfig kube.conf apply -f k8s/worker-deployment.yaml
 kubectl --kubeconfig kube.conf apply -f k8s/service.yaml
+kubectl --kubeconfig kube.conf apply -f k8s/frontend-deployment.yaml
 ```
 ### Restart deployments if needed:
 ```bash
 kubectl --kubeconfig kube.conf rollout restart deployment text2video-api
 kubectl --kubeconfig kube.conf rollout restart deployment text2video-worker
 kubectl --kubeconfig kube.conf rollout restart deployment redis
+kubectl --kubeconfig kube.conf rollout restart deployment text2video-frontend
 ```
 
 ## Useful Kubernetes commands
