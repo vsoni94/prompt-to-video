@@ -56,7 +56,8 @@ def get_result(job_id: str, request: Request):
     if job.get("status") == "COMPLETED":
         # The result contains the full path — extract just the filename to generate the URL
         video_filename = os.path.basename(job["result"])
-        url = str(request.base_url) + f"static/{video_filename}"  # Build full video URL
+        # url = str(request.base_url) + f"static/{video_filename}"  # Build full video URL
+        url = f"/static/{video_filename}"
         return {"url": url}
 
     elif job.get("status") == "FAILED":
