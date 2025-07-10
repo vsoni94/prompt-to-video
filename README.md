@@ -133,7 +133,7 @@ kubectl apply -f k8s/metallb-config.yaml
 - Set service type to LoadBalancer in your YAML manifests
 - Set up port forwarding or router port forwarding to expose the service externally
 
-## If model is using using, follow below
+## If pod is not using GPU, follow below
 ## NVIDIA GPU Setup on Kubernetes
 
 - Install NVIDIA device plugin:
