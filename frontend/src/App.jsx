@@ -3,6 +3,7 @@ import axios from "axios";
 
 function App() {
   const [prompt, setPrompt] = useState("");
+  const [frames, setFrames] = useState(30); // default frames
   const [jobs, setJobs] = useState([]);
   const [videoUrls, setVideoUrls] = useState({}); // Map job_id to video URL
 
@@ -33,9 +34,17 @@ function App() {
 
   const submitPrompt = async () => {
     if (!prompt) return;
+
+    const framesInt = parseInt(frames, 10);
+    if (isNaN(framesInt) || framesInt <= 0) {
+      alert("Please enter a valid positive number for frames.");
+      return;
+    }
+
     try {
-      await axios.post(`/jobs`, { prompt });
+      await axios.post(`/jobs`, { prompt, frames: framesInt });
       setPrompt("");
+      setFrames(30); // reset to default
       fetchJobs();
     } catch (e) {
       console.error("Failed to submit prompt", e);
@@ -60,6 +69,14 @@ function App() {
           placeholder="Enter a prompt..."
           style={styles.input}
         />
+        <input
+          type="number"
+          value={frames}
+          onChange={(e) => setFrames(e.target.value)}
+          placeholder="Frames"
+          style={{ ...styles.input, maxWidth: 100 }}
+          min={1}
+        />
         <button onClick={submitPrompt} style={styles.button}>
           Submit
         </button>
@@ -70,7 +87,8 @@ function App() {
         {jobs.map((job) => (
           <li key={job.job_id} style={styles.jobItem}>
             <p>
-              <strong>{job.prompt}</strong> – <em>{job.status}</em>
+              <strong>{job.prompt}</strong> – <em>{job.status}</em> –{" "}
+              <span>Frames: {job.frames || "default"}</span>
             </p>
             {job.status === "COMPLETED" && videoUrls[job.job_id] && (
               <div style={styles.videoBlock}>
@@ -115,6 +133,7 @@ const styles = {
     display: "flex",
     gap: "10px",
     marginBottom: "20px",
+    alignItems: "center",
   },
   input: {
     flex: 1,

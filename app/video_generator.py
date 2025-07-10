@@ -32,7 +32,7 @@ def get_model():
         print(f"[ERROR] Failed to load model: {e}")
         raise
 
-def generate_video(prompt: str, job_id: str, pipe, num_frames:int=30) -> str:
+def generate_video(prompt: str, job_id: str, pipe, frames:int=30) -> str:
     # Define output paths for generated video and its re-encoded version
     video_path = f"/mnt/data/output/{job_id}.mp4"
     fixed_video_path = f"/mnt/data/output/{job_id}-fixed.mp4"
@@ -46,7 +46,7 @@ def generate_video(prompt: str, job_id: str, pipe, num_frames:int=30) -> str:
         # Use mixed precision autocasting for faster GPU inference
         with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
             # Run the model to generate video frames
-            result = pipe(prompt, num_frames=num_frames)
+            result = pipe(prompt, num_frames=frames)
             frames = result.frames[0]
 
         # Export the generated frames as a video file (MP4)
@@ -80,6 +80,3 @@ def generate_video(prompt: str, job_id: str, pipe, num_frames:int=30) -> str:
         # Log and propagate any errors during generation or encoding
         print(f"[ERROR] Video generation failed: {e}")
         raise
-
-
-

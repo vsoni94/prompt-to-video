@@ -41,8 +41,13 @@ def generate_video_task(job_id, prompt):
         pipe = get_model()
 
     try:
-        # Run video generation passing the cached model instance
-        video_path = generate_video(prompt, job_id, pipe)
+        # Retrieve frames parameter from Redis job data; default to 30 if not set
+        job_info = jobs.get_job(job_id)
+        frames = int(job_info.get("frames", "30"))
+
+        # Run video generation passing the cached model instance and frames parameter
+        video_path = generate_video(prompt, job_id, pipe, frames=frames)
+
         # On success, update job status and store resulting video path
         jobs.update_status(job_id, "COMPLETED", result=video_path)
     except Exception as e:
